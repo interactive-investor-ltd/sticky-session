@@ -129,7 +129,8 @@ Socket.io
 
 
 ```javascript
-var sticky = require('sticky-session');
+var sticky = require('sticky-session'),
+    io;
 
 var options = {
   proxy: true, //activate layer 4 patching
@@ -140,13 +141,12 @@ var options = {
 sticky(options, function() {
   // This code will be executed only in slave workers
 
-  var http = require('http'),
-      io = require('socket.io');
+  var http = require('http');
 
   var server = http.createServer(function(req, res) {
     // ....
   });
-  io.listen(server);
+  io = require('socket.io').listen(server);
 
   return server;
 }).listen(3000, function() {
@@ -156,7 +156,8 @@ sticky(options, function() {
 Socket.io
 
 ```javascript
-var sticky = require('sticky-session');
+var sticky = require('sticky-session'),
+    io;
 
 var options = {
   proxy: true, //activate layer 4 patching
@@ -171,25 +172,26 @@ var options = {
 var server = sticky(options, function() {
   // This code will be executed only in slave workers
 
-  var http = require('http'),
-      io = require('socket.io');
+  var http = require('http');
 
   var server = http.createServer(function(req, res) {
     // ....
   });
-  io.listen(server);
+  io = require('socket.io').listen(server);
 
   return server;
 }).listen(3000, function() {
   console.log('server started on 3000 port');
 });
 
-server.on( 'connection', function( socket )
-{
-  // ... awesome stuff
+if (io) {
+  io.on('connection', function(socket) {
+    // ... awesome stuff
 
-  server.emit( 'mySyncEventCall' );
-} );
+    io.emit('mySyncEventCall');
+  });
+}
+
 
 ```
 Socket.io, synchronized
